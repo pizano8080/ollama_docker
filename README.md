@@ -340,3 +340,4 @@ ollama_docker/
 ```
 
 Docker manages the persistent application data through named volumes rather than storing it directly in the project directory.
+
