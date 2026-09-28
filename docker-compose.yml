@@ -1,24 +1,27 @@
-name: ollama_docker_gpu
+name: ollama_docker
 services:
   ollama:
+    container_name: ollama
+
+    image: ollama/ollama:latest
+
+    environment:
+      # Optional Ollama API key
+      - OLLAMA_API_KEY=${OLLAMA_API_KEY}
     volumes:
       - ollama:/root/.ollama
-    container_name: ollama
-    tty: true
-    restart: unless-stopped
-    image: ollama/ollama:latest
     ports:
       - "11434:11434" # Maps host port 8888 to container port 11434
-    gpus: all
-              
+    restart: unless-stopped
+
+    # Below enables or disables Nvidia GPU.   
+    gpus: all   # Comment out to run on CPU 
+          
   open_webui:
-    build:
-      context: .
-      args:
-        OLLAMA_BASE_URL: '/ollama'
+    container_name: webui
+
     image: ghcr.io/open-webui/open-webui:ollama
 
-    container_name: webui
     volumes:
       - webui-data:/app/backend/data
     depends_on:
@@ -26,28 +29,38 @@ services:
     ports:
       - 3030:8080
     environment:
-      - 'OLLAMA_BASE_URL=http://localhost:11434'
-      - 'WEBUI_SECRET_KEY=not-needed'
+      - 'OLLAMA_BASE_URL=http://ollama:11434'
+      - 'WEBUI_SECRET_KEY=8fK2mQ9xL7vP3nR6tY4wZ1aC5dE8hJ'  # Enter something random for WEBUI_SECRET_KEY
+
+      # OpenAI TTS settings for Kokoro
+      - 'AUDIO_TTS_ENGINE=openai'
+      - 'AUDIO_TTS_OPENAI_API_BASE_URL=http://host.docker.internal:8880/v1'
+      - 'AUDIO_TTS_OPENAI_API_KEY=not-needed'
+      - 'AUDIO_TTS_MODEL=kokoro'
+      - 'AUDIO_TTS_VOICE=af_heart'
+
     extra_hosts:
       - host.docker.internal:host-gateway
     restart: unless-stopped
               
   kokoro:
-    #image: ghcr.io/remsky/kokoro-fastapi-cpu:latest
-    image: ghcr.io/remsky/kokoro-fastapi-gpu:latest
-    container_name: kokoro-fastapi-gpu
-    build:
-      context: ../..
+    container_name: kokoro-fastapi
+
+    #image: ghcr.io/remsky/kokoro-fastapi-cpu:latest  # Kokoro CPU Image
+    image: ghcr.io/remsky/kokoro-fastapi-gpu:latest   # Kokoro GPU Image
+
     depends_on:
       - open_webui
     ports:
       - "8880:8880"
     environment:
       - PYTHONPATH=/app:/app/api
+      # Comment out below if running only on CPU	
       - USE_GPU=true
-      - PYTHONUNBUFFERED=1
     restart: unless-stopped
-    gpus: all
+
+    # Below enables or disables Nvidia GPU.   
+    gpus: all   # Comment out to run on CPU 
 
 volumes:
   ollama: {}
