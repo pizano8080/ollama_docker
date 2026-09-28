@@ -1,0 +1,54 @@
+name: ollama_docker_gpu
+services:
+  ollama:
+    volumes:
+      - ollama:/root/.ollama
+    container_name: ollama
+    tty: true
+    restart: unless-stopped
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434" # Maps host port 8888 to container port 11434
+    gpus: all
+              
+  open_webui:
+    build:
+      context: .
+      args:
+        OLLAMA_BASE_URL: '/ollama'
+    image: ghcr.io/open-webui/open-webui:ollama
+
+    container_name: webui
+    volumes:
+      - webui-data:/app/backend/data
+    depends_on:
+      - ollama
+    ports:
+      - 3030:8080
+    environment:
+      - 'OLLAMA_BASE_URL=http://localhost:11434'
+      - 'WEBUI_SECRET_KEY=not-needed'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+              
+  kokoro:
+    #image: ghcr.io/remsky/kokoro-fastapi-cpu:latest
+    image: ghcr.io/remsky/kokoro-fastapi-gpu:latest
+    container_name: kokoro-fastapi-gpu
+    build:
+      context: ../..
+    depends_on:
+      - open_webui
+    ports:
+      - "8880:8880"
+    environment:
+      - PYTHONPATH=/app:/app/api
+      - USE_GPU=true
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    gpus: all
+
+volumes:
+  ollama: {}
+  webui-data: {}
