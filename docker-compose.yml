@@ -14,9 +14,9 @@ services:
       - "11434:11434" # Maps host port 8888 to container port 11434
     restart: unless-stopped
 
-    # Below enables or disables Nvidia GPU.   
-    gpus: all   # Comment out to run on CPU 
-          
+    # Below enables or disables Nvidia GPU.
+    gpus: all   # Comment out to run on CPU
+
   open_webui:
     container_name: webui
 
@@ -42,7 +42,7 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
     restart: unless-stopped
-              
+
   kokoro:
     container_name: kokoro-fastapi
 
@@ -59,8 +59,8 @@ services:
       - USE_GPU=true
     restart: unless-stopped
 
-    # Below enables or disables Nvidia GPU.   
-    gpus: all   # Comment out to run on CPU 
+    # Below enables or disables Nvidia GPU
+    gpus: all   # Comment out to run on CPU
 
 volumes:
   ollama: {}
