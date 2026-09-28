@@ -196,11 +196,11 @@ Open WebUI can use OpenAI for text-to-speech.
 The Compose configuration uses:
 
 ```yaml
-AUDIO_TTS_ENGINE=openai
-AUDIO_TTS_OPENAI_API_BASE_URL=https://api.openai.com/v1
-AUDIO_TTS_OPENAI_API_KEY=${OPENAI_API_KEY}
-AUDIO_TTS_MODEL=tts-1
-AUDIO_TTS_VOICE=alloy
+'AUDIO_TTS_ENGINE=openai'
+'AUDIO_TTS_OPENAI_API_BASE_URL=http://host.docker.internal:8880/v1'
+'AUDIO_TTS_OPENAI_API_KEY=${OPENAI_API_KEY}'  # Local Kokoro doesnt need a key so 'not-needed' is used.
+'AUDIO_TTS_MODEL=kokoro'
+'AUDIO_TTS_VOICE=af_heart'
 ```
 
 The OpenAI API key is stored in `.env`:
