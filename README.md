@@ -341,3 +341,51 @@ ollama_docker/
 
 Docker manages the persistent application data through named volumes rather than storing it directly in the project directory.
 
+
+## Useful Support information
+
+
+## Docker Disk Space Cleanup
+
+To check Docker disk usage, including individual volumes:
+
+```bash
+docker system df -v
+```
+
+Look under **Local Volumes space usage** for volumes showing:
+
+```text
+LINKS  0
+```
+
+These are volumes that are not currently attached to a running or existing container and may be leftovers from an older Docker Compose deployment.
+
+Example:
+
+```text
+VOLUME NAME                    LINKS     SIZE
+old_ollama_data                0         50.89GB
+old_webui_data                 0         1.14GB
+current_ollama_data            1         33.25GB
+current_webui_data             1         1.12GB
+```
+
+If you have confirmed an orphaned volume is no longer needed, remove it manually:
+
+```bash
+docker volume rm old_ollama_data
+```
+
+Multiple volumes can be removed at once:
+
+```bash
+docker volume rm old_ollama_data old_webui_data
+```
+
+### Note
+
+`docker system prune` does not remove volumes by default.
+
+`docker volume prune` is intended to remove unused volumes, but it may not clean up every leftover volume from previous Compose deployments. For this reason, use `docker system df -v` to identify orphaned volumes and **manually remove confirmed-unused volumes** with `docker volume rm`.
+
