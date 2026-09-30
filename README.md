@@ -1,4 +1,4 @@
-# Ollama + Open WebUI + Kokoro Docker
+# Ollama + Open WebUI + Kokoro Docker Compose
 
 This Docker Compose project runs **Ollama**, **Open WebUI**, and **Kokoro TTS** together.
 
